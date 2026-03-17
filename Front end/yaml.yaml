@@ -1,7 +1,18 @@
+version: "1"
+
 services:
+  # FRONTEND
   - type: web
-    name: Stock-control
+    name: stock-frontend
     runtime: static
     repo: https://github.com/SouReiDavi/Stock-control
-    buildCommand: yarn install
     staticPublishPath: frontend
+
+  # BACKEND
+  - type: web
+    name: stock-backend
+    runtime: node
+    repo: https://github.com/SouReiDavi/Stock-control
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node server.js

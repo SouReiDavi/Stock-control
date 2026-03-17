@@ -1,0 +1,712 @@
+<<<<<<< HEAD
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Notebooks por Data - Brasil</title>
+    
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <!-- CSS Principal -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Imagem de fundo -->
+    <div class="background-image"></div>
+    
+    <div class="container">
+        <!-- Header com estatísticas -->
+        <div class="header">
+            <h1>
+                <span class="material-icons">laptop</span>
+                Registro de Notebooks por Data - Brasil
+            </h1>
+            <div class="stats-container">
+                <div class="stat-card">
+                    <span class="material-icons">computer</span>
+                    <div class="stat-value" id="total-notebooks">0</div>
+                    <div class="stat-label">Total Notebooks</div>
+                </div>
+                <div class="stat-card">
+                    <span class="material-icons">check_circle</span>
+                    <div class="stat-value" id="disponiveis">0</div>
+                    <div class="stat-label">Disponíveis</div>
+                </div>
+                <div class="stat-card">
+                    <span class="material-icons">swap_horiz</span>
+                    <div class="stat-value" id="em-uso">0</div>
+                    <div class="stat-label">Em Uso</div>
+                </div>
+                <div class="stat-card">
+                    <span class="material-icons">build</span>
+                    <div class="stat-value" id="manutencao">0</div>
+                    <div class="stat-label">Manutenção</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Filtros Avançados -->
+        <div class="filtros-container">
+            <div class="filtro-group">
+                <label>
+                    <span class="material-icons">location_city</span>
+                    Região
+                </label>
+                <select id="filtro-regiao">
+                    <option value="">Todas as regiões</option>
+                    <option value="Norte">Norte</option>
+                    <option value="Nordeste">Nordeste</option>
+                    <option value="Centro-Oeste">Centro-Oeste</option>
+                    <option value="Sudeste">Sudeste</option>
+                    <option value="Sul">Sul</option>
+                </select>
+            </div>
+            
+            <div class="filtro-group">
+                <label>
+                    <span class="material-icons">location_city</span>
+                    Cidade
+                </label>
+                <select id="filtro-cidade">
+                    <option value="">Todas as cidades</option>
+                </select>
+            </div>
+            
+            <div class="filtro-group">
+                <label>
+                    <span class="material-icons">event</span>
+                    Data Inicial
+                </label>
+                <input type="date" id="data-inicial">
+            </div>
+            
+            <div class="filtro-group">
+                <label>
+                    <span class="material-icons">event</span>
+                    Data Final
+                </label>
+                <input type="date" id="data-final">
+            </div>
+            
+            <div class="filtro-group">
+                <label>
+                    <span class="material-icons">search</span>
+                    Buscar
+                </label>
+                <input type="text" id="busca-notebook" placeholder="Patrimônio ou modelo...">
+            </div>
+            
+            <button class="btn-filtrar" onclick="aplicarFiltros()">
+                <span class="material-icons">filter_alt</span>
+                Filtrar
+            </button>
+            
+            <button class="btn-limpar" onclick="limparFiltros()">
+                <span class="material-icons">clear</span>
+                Limpar
+            </button>
+        </div>
+        
+        <!-- Resumo por período -->
+        <div class="resumo-periodo">
+            <div class="periodo-card">
+                <span class="material-icons">today</span>
+                <div>
+                    <div class="periodo-label">Registros Hoje</div>
+                    <div class="periodo-value" id="registros-hoje">0</div>
+                </div>
+            </div>
+            <div class="periodo-card">
+                <span class="material-icons">date_range</span>
+                <div>
+                    <div class="periodo-label">Registros esta semana</div>
+                    <div class="periodo-value" id="registros-semana">0</div>
+                </div>
+            </div>
+            <div class="periodo-card">
+                <span class="material-icons">calendar_month</span>
+                <div>
+                    <div class="periodo-label">Registros este mês</div>
+                    <div class="periodo-value" id="registros-mes">0</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Timeline de Registros -->
+        <div class="timeline-container">
+            <h2>
+                <span class="material-icons">timeline</span>
+                Linha do Tempo - Registros de Notebooks
+            </h2>
+            
+            <div id="timeline" class="timeline">
+                <!-- Preenchido via JavaScript -->
+            </div>
+        </div>
+        
+        <!-- Tabela de Notebooks -->
+        <div class="tabela-container">
+            <div class="tabela-header">
+                <h2>
+                    <span class="material-icons">list_alt</span>
+                    Registros Detalhados
+                </h2>
+                <button class="btn-novo-registro" onclick="abrirModalRegistro()">
+                    <span class="material-icons">add</span>
+                    Novo Registro
+                </button>
+            </div>
+            
+            <table class="tabela-notebooks">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Patrimônio</th>
+                        <th>Modelo</th>
+                        <th>Região</th>
+                        <th>Cidade</th>
+                        <th>Local</th>
+                        <th>Status</th>
+                        <th>Usuário</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="tabela-corpo">
+                    <tr>
+                        <td colspan="9" class="loading-row">
+                            <span class="material-icons">hourglass_empty</span>
+                            Carregando registros...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Modal de Registro -->
+    <div id="modal-registro" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>
+                    <span class="material-icons">edit</span>
+                    <span id="modal-titulo">Novo Registro de Notebook</span>
+                </h2>
+                <span class="close" onclick="fecharModal()">&times;</span>
+            </div>
+            
+            <form id="form-registro" onsubmit="event.preventDefault(); salvarRegistro();">
+                <input type="hidden" id="registro-id">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>
+                            <span class="material-icons">qr_code_scanner</span>
+                            Patrimônio *
+                        </label>
+                        <input type="text" id="patrimonio" required placeholder="Ex: NT001">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <span class="material-icons">computer</span>
+                            Modelo *
+                        </label>
+                        <input type="text" id="modelo" required placeholder="Ex: Dell Inspiron 15">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>
+                            <span class="material-icons">memory</span>
+                            Processador
+                        </label>
+                        <input type="text" id="processador" placeholder="Ex: Intel Core i7">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <span class="material-icons">storage</span>
+                            Memória
+                        </label>
+                        <input type="text" id="memoria" placeholder="Ex: 16GB">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>
+                            <span class="material-icons">save</span>
+                            Armazenamento
+                        </label>
+                        <input type="text" id="armazenamento" placeholder="Ex: 512GB SSD">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <span class="material-icons">person</span>
+                            Usuário
+                        </label>
+                        <input type="text" id="usuario" placeholder="Nome do usuário">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>
+                            <span class="material-icons">public</span>
+                            Região *
+                        </label>
+                        <select id="regiao" required>
+                            <option value="">Selecione...</option>
+                            <option value="Norte">Norte</option>
+                            <option value="Nordeste">Nordeste</option>
+                            <option value="Centro-Oeste">Centro-Oeste</option>
+                            <option value="Sudeste">Sudeste</option>
+                            <option value="Sul">Sul</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <span class="material-icons">location_city</span>
+                            Cidade *
+                        </label>
+                        <select id="cidade" required>
+                            <option value="">Selecione...</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>
+                            <span class="material-icons">business</span>
+                            Local/Setor *
+                        </label>
+                        <input type="text" id="local" required placeholder="Ex: TI, RH, Vendas...">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <span class="material-icons">event</span>
+                            Data do Registro *
+                        </label>
+                        <input type="date" id="data-registro" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>
+                            <span class="material-icons">info</span>
+                            Status *
+                        </label>
+                        <select id="status" required>
+                            <option value="disponivel">Disponível</option>
+                            <option value="em_uso">Em Uso</option>
+                            <option value="manutencao">Em Manutenção</option>
+                            <option value="reservado">Reservado</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <span class="material-icons">notes</span>
+                            Observações
+                        </label>
+                        <textarea id="observacoes" rows="2" placeholder="Observações..."></textarea>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn-cancelar" onclick="fecharModal()">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn-salvar">
+                        <span class="material-icons">save</span>
+                        Salvar Registro
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Modal de Visualização -->
+    <div id="modal-visualizar" class="modal">
+        <div class="modal-content modal-visualizar">
+            <div class="modal-header">
+                <h2>
+                    <span class="material-icons">visibility</span>
+                    Detalhes do Notebook
+                </h2>
+                <span class="close" onclick="fecharModalVisualizar()">&times;</span>
+            </div>
+            
+            <div id="detalhes-notebook" class="detalhes-container">
+                <!-- Preenchido via JavaScript -->
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/app.js"></script>
+</body>
+=======
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Notebooks por Data - Brasil</title>
+    
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <!-- CSS Principal -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Imagem de fundo -->
+    <div class="background-image"></div>
+    
+    <div class="container">
+        <!-- Header com estatísticas -->
+        <div class="header">
+            <h1>
+                <span class="material-icons">laptop</span>
+                Registro de Notebooks por Data - Brasil
+            </h1>
+            <div class="stats-container">
+                <div class="stat-card">
+                    <span class="material-icons">computer</span>
+                    <div class="stat-value" id="total-notebooks">0</div>
+                    <div class="stat-label">Total Notebooks</div>
+                </div>
+                <div class="stat-card">
+                    <span class="material-icons">check_circle</span>
+                    <div class="stat-value" id="disponiveis">0</div>
+                    <div class="stat-label">Disponíveis</div>
+                </div>
+                <div class="stat-card">
+                    <span class="material-icons">swap_horiz</span>
+                    <div class="stat-value" id="em-uso">0</div>
+                    <div class="stat-label">Em Uso</div>
+                </div>
+                <div class="stat-card">
+                    <span class="material-icons">build</span>
+                    <div class="stat-value" id="manutencao">0</div>
+                    <div class="stat-label">Manutenção</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Filtros Avançados -->
+        <div class="filtros-container">
+            <div class="filtro-group">
+                <label>
+                    <span class="material-icons">location_city</span>
+                    Região
+                </label>
+                <select id="filtro-regiao">
+                    <option value="">Todas as regiões</option>
+                    <option value="Norte">Norte</option>
+                    <option value="Nordeste">Nordeste</option>
+                    <option value="Centro-Oeste">Centro-Oeste</option>
+                    <option value="Sudeste">Sudeste</option>
+                    <option value="Sul">Sul</option>
+                </select>
+            </div>
+            
+            <div class="filtro-group">
+                <label>
+                    <span class="material-icons">location_city</span>
+                    Cidade
+                </label>
+                <select id="filtro-cidade">
+                    <option value="">Todas as cidades</option>
+                </select>
+            </div>
+            
+            <div class="filtro-group">
+                <label>
+                    <span class="material-icons">event</span>
+                    Data Inicial
+                </label>
+                <input type="date" id="data-inicial">
+            </div>
+            
+            <div class="filtro-group">
+                <label>
+                    <span class="material-icons">event</span>
+                    Data Final
+                </label>
+                <input type="date" id="data-final">
+            </div>
+            
+            <div class="filtro-group">
+                <label>
+                    <span class="material-icons">search</span>
+                    Buscar
+                </label>
+                <input type="text" id="busca-notebook" placeholder="Patrimônio ou modelo...">
+            </div>
+            
+            <button class="btn-filtrar" onclick="aplicarFiltros()">
+                <span class="material-icons">filter_alt</span>
+                Filtrar
+            </button>
+            
+            <button class="btn-limpar" onclick="limparFiltros()">
+                <span class="material-icons">clear</span>
+                Limpar
+            </button>
+        </div>
+        
+        <!-- Resumo por período -->
+        <div class="resumo-periodo">
+            <div class="periodo-card">
+                <span class="material-icons">today</span>
+                <div>
+                    <div class="periodo-label">Registros Hoje</div>
+                    <div class="periodo-value" id="registros-hoje">0</div>
+                </div>
+            </div>
+            <div class="periodo-card">
+                <span class="material-icons">date_range</span>
+                <div>
+                    <div class="periodo-label">Registros esta semana</div>
+                    <div class="periodo-value" id="registros-semana">0</div>
+                </div>
+            </div>
+            <div class="periodo-card">
+                <span class="material-icons">calendar_month</span>
+                <div>
+                    <div class="periodo-label">Registros este mês</div>
+                    <div class="periodo-value" id="registros-mes">0</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Timeline de Registros -->
+        <div class="timeline-container">
+            <h2>
+                <span class="material-icons">timeline</span>
+                Linha do Tempo - Registros de Notebooks
+            </h2>
+            
+            <div id="timeline" class="timeline">
+                <!-- Preenchido via JavaScript -->
+            </div>
+        </div>
+        
+        <!-- Tabela de Notebooks -->
+        <div class="tabela-container">
+            <div class="tabela-header">
+                <h2>
+                    <span class="material-icons">list_alt</span>
+                    Registros Detalhados
+                </h2>
+                <button class="btn-novo-registro" onclick="abrirModalRegistro()">
+                    <span class="material-icons">add</span>
+                    Novo Registro
+                </button>
+            </div>
+            
+            <table class="tabela-notebooks">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Patrimônio</th>
+                        <th>Modelo</th>
+                        <th>Região</th>
+                        <th>Cidade</th>
+                        <th>Local</th>
+                        <th>Status</th>
+                        <th>Usuário</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="tabela-corpo">
+                    <tr>
+                        <td colspan="9" class="loading-row">
+                            <span class="material-icons">hourglass_empty</span>
+                            Carregando registros...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Modal de Registro -->
+    <div id="modal-registro" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>
+                    <span class="material-icons">edit</span>
+                    <span id="modal-titulo">Novo Registro de Notebook</span>
+                </h2>
+                <span class="close" onclick="fecharModal()">&times;</span>
+            </div>
+            
+            <form id="form-registro" onsubmit="event.preventDefault(); salvarRegistro();">
+                <input type="hidden" id="registro-id">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>
+                            <span class="material-icons">qr_code_scanner</span>
+                            Patrimônio *
+                        </label>
+                        <input type="text" id="patrimonio" required placeholder="Ex: NT001">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <span class="material-icons">computer</span>
+                            Modelo *
+                        </label>
+                        <input type="text" id="modelo" required placeholder="Ex: Dell Inspiron 15">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>
+                            <span class="material-icons">memory</span>
+                            Processador
+                        </label>
+                        <input type="text" id="processador" placeholder="Ex: Intel Core i7">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <span class="material-icons">storage</span>
+                            Memória
+                        </label>
+                        <input type="text" id="memoria" placeholder="Ex: 16GB">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>
+                            <span class="material-icons">save</span>
+                            Armazenamento
+                        </label>
+                        <input type="text" id="armazenamento" placeholder="Ex: 512GB SSD">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <span class="material-icons">person</span>
+                            Usuário
+                        </label>
+                        <input type="text" id="usuario" placeholder="Nome do usuário">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>
+                            <span class="material-icons">public</span>
+                            Região *
+                        </label>
+                        <select id="regiao" required>
+                            <option value="">Selecione...</option>
+                            <option value="Norte">Norte</option>
+                            <option value="Nordeste">Nordeste</option>
+                            <option value="Centro-Oeste">Centro-Oeste</option>
+                            <option value="Sudeste">Sudeste</option>
+                            <option value="Sul">Sul</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <span class="material-icons">location_city</span>
+                            Cidade *
+                        </label>
+                        <select id="cidade" required>
+                            <option value="">Selecione...</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>
+                            <span class="material-icons">business</span>
+                            Local/Setor *
+                        </label>
+                        <input type="text" id="local" required placeholder="Ex: TI, RH, Vendas...">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <span class="material-icons">event</span>
+                            Data do Registro *
+                        </label>
+                        <input type="date" id="data-registro" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>
+                            <span class="material-icons">info</span>
+                            Status *
+                        </label>
+                        <select id="status" required>
+                            <option value="disponivel">Disponível</option>
+                            <option value="em_uso">Em Uso</option>
+                            <option value="manutencao">Em Manutenção</option>
+                            <option value="reservado">Reservado</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <span class="material-icons">notes</span>
+                            Observações
+                        </label>
+                        <textarea id="observacoes" rows="2" placeholder="Observações..."></textarea>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn-cancelar" onclick="fecharModal()">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn-salvar">
+                        <span class="material-icons">save</span>
+                        Salvar Registro
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Modal de Visualização -->
+    <div id="modal-visualizar" class="modal">
+        <div class="modal-content modal-visualizar">
+            <div class="modal-header">
+                <h2>
+                    <span class="material-icons">visibility</span>
+                    Detalhes do Notebook
+                </h2>
+                <span class="close" onclick="fecharModalVisualizar()">&times;</span>
+            </div>
+            
+            <div id="detalhes-notebook" class="detalhes-container">
+                <!-- Preenchido via JavaScript -->
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/app.js"></script>
+</body>
+>>>>>>> a0505260c2e871ddad38941bc2681f4dd664cc3a
+</html>

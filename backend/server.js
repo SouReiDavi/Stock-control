@@ -1,9 +1,14 @@
+
+
+
+const path = require("path");
 const express = require('express');
 const cors = require('cors');
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Middleware
+app.use(express.static(path.join(__dirname, "Front end")));
 app.use(cors());
 app.use(express.json());
 
@@ -138,4 +143,8 @@ app.get('/api/registros/regiao/:regiao', (req, res) => {
 app.listen(PORT, () => {
     console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
     console.log(`📝 API disponível em http://localhost:${PORT}/api/registros`);
+});
+
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "Front end", "index.html"));
 });

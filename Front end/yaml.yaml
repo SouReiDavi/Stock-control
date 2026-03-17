@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: Stock-control
+    runtime: static
+    repo: https://github.com/SouReiDavi/Stock-control
+    buildCommand: yarn install
+    staticPublishPath: frontend

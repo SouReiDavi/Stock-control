@@ -475,3 +475,60 @@ async function convidarUsuario(email) {
 // Criar usuário padrão
 const emailPadrao = "davidavilucas38@gmail.com"
 const senhaPadrao = "Ferrariluxodevderdade@"
+
+// Login
+async function login(email, password) {
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: email,
+    password: password,
+  })
+  if (error) throw error
+  return data.user
+}
+
+// Cadastro
+async function cadastrar(email, password) {
+  const { data, error } = await supabase.auth.signUp({
+    email: email,
+    password: password,
+  })
+  if (error) throw error
+  return data.user
+}
+
+// Listar equipamentos
+async function listarEquipamentos() {
+  const { data, error } = await supabase
+    .from('equipamentos')
+    .select('*')
+    .order('data_cadastro', { ascending: false })
+  
+  if (error) throw error
+  return data
+}
+
+// Adicionar equipamento
+async function adicionarEquipamento(equipamento) {
+  const user = supabase.auth.user()
+  const { data, error } = await supabase
+    .from('equipamentos')
+    .insert([{
+      ...equipamento,
+      usuario_id: user.id,
+      status: 'disponivel'
+    }])
+  
+  if (error) throw error
+  return data
+}
+
+// Atualizar status
+async function atualizarStatus(id, novoStatus) {
+  const { data, error } = await supabase
+    .from('equipamentos')
+    .update({ status: novoStatus })
+    .eq('id', id)
+  
+  if (error) throw error
+  return data
+}

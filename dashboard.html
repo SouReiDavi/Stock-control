@@ -178,6 +178,80 @@
 
         // Carregar equipamentos ao iniciar
         mostrarEquipamentos()
+
+        // Teste de conexão com Supabase
+        async function testarConexao() {
+            console.log('🔍 Testando conexão com Supabase...')
+            console.log('URL:', import.meta.env.VITE_SUPABASE_URL)
+            
+            try {
+                // Teste 1: Verificar se o cliente foi criado
+                if (!supabase) {
+                    console.error('❌ Cliente Supabase não inicializado!')
+                    return
+                }
+                console.log('✅ Cliente Supabase criado')
+                
+                // Teste 2: Tentar listar equipamentos
+                const { data, error, status } = await supabase
+                    .from('equipamentos')
+                    .select('count')
+                    .limit(1)
+                
+                if (error) {
+                    console.error('❌ Erro na conexão:', error.message)
+                    console.log('Status HTTP:', status)
+                } else {
+                    console.log('✅ Conexão com Supabase OK!')
+                    console.log('📊 Dados recebidos:', data)
+                }
+                
+                // Teste 3: Verificar autenticação
+                const { data: { user } } = await supabase.auth.getUser()
+                if (user) {
+                    console.log('✅ Usuário autenticado:', user.email)
+                } else {
+                    console.log('⚠️ Nenhum usuário logado')
+                }
+                
+            } catch (err) {
+                console.error('❌ Erro inesperado:', err)
+            }
+        }
+        // Atualizar indicador visual
+async function atualizarStatusConexao() {
+    const statusDiv = document.getElementById('status-conexao')
+    
+    try {
+        const { data, error } = await supabase
+            .from('equipamentos')
+            .select('count')
+            .limit(1)
+        
+        if (error) {
+            statusDiv.style.backgroundColor = '#ff4444'
+            statusDiv.style.color = 'white'
+            statusDiv.innerHTML = '❌ Erro de conexão'
+        } else {
+            statusDiv.style.backgroundColor = '#00aa55'
+            statusDiv.style.color = 'white'
+            statusDiv.innerHTML = '✅ Banco conectado'
+            
+            // Esconder após 5 segundos
+            setTimeout(() => {
+                statusDiv.style.opacity = '0.5'
+            }, 5000)
+        }
+    } catch (err) {
+        statusDiv.style.backgroundColor = '#ff4444'
+        statusDiv.innerHTML = '❌ Falha na conexão'
+    }
+}
+
+atualizarStatusConexao()
+
+        // Executar o teste
+        testarConexao()
     </script>
 </body>
 </html>

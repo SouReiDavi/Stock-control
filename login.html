@@ -3,50 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Controle de Estoque</title>
-    <link rel="stylesheet" href="./css/jogo.css">
+    <title>Login - Equipamento Estoque</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
+<body class="login-page">
     <div class="login-container">
-        <div class="login-box">
-            <h1>Controle de Estoque</h1>
-            <p>Equipamentos - Notebooks e Celulares</p>
-            
-            <div class="tab-buttons">
-                <button class="tab-btn active" onclick="showTab('login')">Entrar</button>
-                <button class="tab-btn" onclick="showTab('register')">Cadastrar</button>
+        <!-- Efeito de fundo tecnológico -->
+        <div class="tech-background">
+            <div class="grid-lines"></div>
+            <div class="circuit-pattern"></div>
+            <div class="particles"></div>
+        </div>
+
+        <!-- Card de Login -->
+        <div class="login-card">
+            <div class="login-header">
+                <div class="logo-icon">
+                    <i class="fas fa-microchip"></i>
+                    <i class="fas fa-laptop-code"></i>
+                </div>
+                <h1>Equipamento Estoque</h1>
+                <p>Sistema de Controle de Equipamentos</p>
+            </div>
+
+            <!-- Abas de Login/Cadastro -->
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="login">
+                    <i class="fas fa-sign-in-alt"></i> Entrar
+                </button>
+                <button class="tab-btn" data-tab="register">
+                    <i class="fas fa-user-plus"></i> Cadastrar
+                </button>
             </div>
 
             <!-- Formulário de Login -->
-            <div id="login-form" class="form-container active">
+            <div id="login-form" class="form-panel active">
                 <form onsubmit="handleLogin(event)">
-                    <input type="email" id="login-email" placeholder="E-mail" required>
-                    <input type="password" id="login-password" placeholder="Senha" required>
-                    <button type="submit" class="btn-primary">Entrar</button>
+                    <div class="input-group">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="login-email" placeholder="E-mail" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="login-password" placeholder="Senha" required>
+                        <i class="fas fa-eye-slash toggle-password" onclick="togglePassword(this)"></i>
+                    </div>
+                    <button type="submit" class="btn-login">
+                        <i class="fas fa-arrow-right-to-bracket"></i> Entrar
+                    </button>
                 </form>
             </div>
 
             <!-- Formulário de Cadastro -->
-            <div id="register-form" class="form-container">
+            <div id="register-form" class="form-panel">
                 <form onsubmit="handleRegister(event)">
-                    <input type="email" id="register-email" placeholder="E-mail" required>
-                    <input type="password" id="register-password" placeholder="Senha" required>
-                    <button type="submit" class="btn-primary">Cadastrar</button>
+                    <div class="input-group">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="register-email" placeholder="E-mail" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="register-password" placeholder="Senha" required>
+                        <i class="fas fa-eye-slash toggle-password" onclick="togglePassword(this)"></i>
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="confirm-password" placeholder="Confirmar Senha" required>
+                    </div>
+                    <button type="submit" class="btn-login">
+                        <i class="fas fa-user-plus"></i> Criar Conta
+                    </button>
                 </form>
             </div>
 
+            <!-- Mensagem de Status -->
             <div id="message" class="message"></div>
+
+            <!-- Rodapé com informações -->
+            <div class="login-footer">
+                <p>
+                    <i class="fas fa-shield-alt"></i> 
+                    Sistema seguro com criptografia
+                </p>
+                <div class="tech-icons">
+                    <i class="fas fa-database"></i>
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <i class="fas fa-chart-line"></i>
+                </div>
+            </div>
         </div>
     </div>
 
     <script type="module">
         import { supabase } from './supabaseClient.js'
 
+        // Função de Login
         window.handleLogin = async function(event) {
             event.preventDefault()
             const email = document.getElementById('login-email').value
             const password = document.getElementById('login-password').value
             const messageDiv = document.getElementById('message')
+
+            messageDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Autenticando...'
+            messageDiv.className = 'message info'
 
             const { data, error } = await supabase.auth.signInWithPassword({
                 email: email,
@@ -54,56 +115,114 @@
             })
 
             if (error) {
-                messageDiv.textContent = 'Erro: ' + error.message
+                messageDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> ' + error.message
                 messageDiv.className = 'message error'
             } else {
-                messageDiv.textContent = 'Login realizado! Redirecionando...'
+                messageDiv.innerHTML = '<i class="fas fa-check-circle"></i> Login realizado! Redirecionando...'
                 messageDiv.className = 'message success'
                 setTimeout(() => {
                     window.location.href = 'dashboard.html'
-                }, 1000)
+                }, 1500)
             }
         }
 
+        // Função de Cadastro
         window.handleRegister = async function(event) {
             event.preventDefault()
             const email = document.getElementById('register-email').value
             const password = document.getElementById('register-password').value
+            const confirmPassword = document.getElementById('confirm-password').value
             const messageDiv = document.getElementById('message')
+
+            // Validar senhas
+            if (password !== confirmPassword) {
+                messageDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> As senhas não coincidem'
+                messageDiv.className = 'message error'
+                return
+            }
+
+            if (password.length < 6) {
+                messageDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> A senha deve ter pelo menos 6 caracteres'
+                messageDiv.className = 'message error'
+                return
+            }
+
+            messageDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Criando conta...'
+            messageDiv.className = 'message info'
 
             const { data, error } = await supabase.auth.signUp({
                 email: email,
-                password: password
+                password: password,
+                options: {
+                    data: {
+                        created_at: new Date().toISOString()
+                    }
+                }
             })
 
             if (error) {
-                messageDiv.textContent = 'Erro: ' + error.message
+                messageDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> ' + error.message
                 messageDiv.className = 'message error'
             } else {
-                messageDiv.textContent = 'Cadastro realizado! Faça login para continuar.'
+                messageDiv.innerHTML = '<i class="fas fa-check-circle"></i> Conta criada! Faça login para continuar.'
                 messageDiv.className = 'message success'
+                
+                // Limpar formulário
                 document.getElementById('register-form').reset()
-                showTab('login')
+                
+                // Mudar para aba de login após 2 segundos
+                setTimeout(() => {
+                    document.querySelector('[data-tab="login"]').click()
+                }, 2000)
             }
         }
 
-        window.showTab = function(tab) {
-            const loginForm = document.getElementById('login-form')
-            const registerForm = document.getElementById('register-form')
-            const buttons = document.querySelectorAll('.tab-btn')
-            
-            if (tab === 'login') {
-                loginForm.classList.add('active')
-                registerForm.classList.remove('active')
-                buttons[0].classList.add('active')
-                buttons[1].classList.remove('active')
+        // Mostrar/Esconder senha
+        window.togglePassword = function(element) {
+            const input = element.previousElementSibling
+            if (input.type === 'password') {
+                input.type = 'text'
+                element.classList.remove('fa-eye-slash')
+                element.classList.add('fa-eye')
             } else {
-                loginForm.classList.remove('active')
-                registerForm.classList.add('active')
-                buttons[0].classList.remove('active')
-                buttons[1].classList.add('active')
+                input.type = 'password'
+                element.classList.remove('fa-eye')
+                element.classList.add('fa-eye-slash')
             }
-            document.getElementById('message').textContent = ''
+        }
+
+        // Abas de Login/Cadastro
+        const tabs = document.querySelectorAll('.tab-btn')
+        const loginPanel = document.getElementById('login-form')
+        const registerPanel = document.getElementById('register-form')
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabName = tab.getAttribute('data-tab')
+                
+                // Atualizar abas
+                tabs.forEach(t => t.classList.remove('active'))
+                tab.classList.add('active')
+                
+                // Mostrar painel correto
+                if (tabName === 'login') {
+                    loginPanel.classList.add('active')
+                    registerPanel.classList.remove('active')
+                } else {
+                    loginPanel.classList.remove('active')
+                    registerPanel.classList.add('active')
+                }
+                
+                // Limpar mensagem
+                document.getElementById('message').innerHTML = ''
+                document.getElementById('message').className = 'message'
+            })
+        })
+
+        // Verificar se já está logado e redirecionar
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+            window.location.href = 'dashboard.html'
         }
     </script>
 </body>

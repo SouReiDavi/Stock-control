@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Controle de Estoque</title>
+    <link rel="stylesheet" href="./css/jogo.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header>
+            <h1>Controle de Estoque</h1>
+            <div class="user-info">
+                <span id="user-email"></span>
+                <button onclick="handleLogout()" class="btn-logout">Sair</button>
+            </div>
+        </header>
+
+        <div class="dashboard-content">
+            <!-- Formulário de Cadastro de Equipamento -->
+            <div class="card">
+                <h2>Cadastrar Equipamento</h2>
+                <form id="equipamento-form" onsubmit="adicionarEquipamento(event)">
+                    <select id="tipo" required>
+                        <option value="">Selecione o tipo</option>
+                        <option value="notebook">Notebook</option>
+                        <option value="celular">Celular</option>
+                        <option value="tablet">Tablet</option>
+                    </select>
+                    <input type="text" id="modelo" placeholder="Modelo" required>
+                    <input type="text" id="patrimonio" placeholder="Número de Patrimônio">
+                    <button type="submit" class="btn-primary">Cadastrar</button>
+                </form>
+            </div>
+
+            <!-- Lista de Equipamentos -->
+            <div class="card">
+                <h2>Equipamentos Cadastrados</h2>
+                <div class="filtros">
+                    <input type="text" id="filtro" placeholder="Buscar por modelo ou patrimônio..." onkeyup="filtrarEquipamentos()">
+                </div>
+                <div id="lista-equipamentos" class="equipamentos-lista">
+                    <p>Carregando equipamentos...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { supabase } from './supabaseClient.js'
+
+        // Verificar se usuário está logado
+        const user = await supabase.auth.getUser()
+        if (!user.data.user) {
+            window.location.href = 'login.html'
+        } else {
+            document.getElementById('user-email').textContent = user.data.user.email
+        }
+
+        // Carregar equipamentos
+        async function carregarEquipamentos() {
+            const { data, error } = await supabase
+                .from('equipamentos')
+                .select('*')
+                .order('data_cadastro', { ascending: false })
+
+            if (error) {
+                console.error('Erro:', error)
+                return []
+            }
+            return data
+        }
+
+        // Mostrar equipamentos na tela
+        async function mostrarEquipamentos() {
+            const equipamentos = await carregarEquipamentos()
+            const container = document.getElementById('lista-equipamentos')
+            const filtro = document.getElementById('filtro').value.toLowerCase()
+
+            const filtrados = equipamentos.filter(eq => 
+                eq.modelo.toLowerCase().includes(filtro) ||
+                (eq.patrimonio && eq.patrimonio.toLowerCase().includes(filtro))
+            )
+
+            if (filtrados.length === 0) {
+                container.innerHTML = '<p>Nenhum equipamento cadastrado.</p>'
+                return
+            }
+
+            container.innerHTML = filtrados.map(eq => `
+                <div class="equipamento-card ${eq.status}">
+                    <div class="equipamento-info">
+                        <strong>${eq.tipo.toUpperCase()}</strong> - ${eq.modelo}
+                        ${eq.patrimonio ? `<br><small>Patrimônio: ${eq.patrimonio}</small>` : ''}
+                        <br><small>Status: ${eq.status}</small>
+                    </div>
+                    <div class="equipamento-acoes">
+                        <select onchange="atualizarStatus('${eq.id}', this.value)">
+                            <option value="disponivel" ${eq.status === 'disponivel' ? 'selected' : ''}>Disponível</option>
+                            <option value="emprestado" ${eq.status === 'emprestado' ? 'selected' : ''}>Emprestado</option>
+                            <option value="manutencao" ${eq.status === 'manutencao' ? 'selected' : ''}>Em Manutenção</option>
+                        </select>
+                        <button onclick="excluirEquipamento('${eq.id}')" class="btn-danger">Excluir</button>
+                    </div>
+                </div>
+            `).join('')
+        }
+
+        // Adicionar equipamento
+        window.adicionarEquipamento = async function(event) {
+            event.preventDefault()
+            
+            const tipo = document.getElementById('tipo').value
+            const modelo = document.getElementById('modelo').value
+            const patrimonio = document.getElementById('patrimonio').value
+
+            const user = await supabase.auth.getUser()
+            
+            const { data, error } = await supabase
+                .from('equipamentos')
+                .insert([{
+                    tipo: tipo,
+                    modelo: modelo,
+                    patrimonio: patrimonio || null,
+                    usuario_id: user.data.user.id,
+                    status: 'disponivel'
+                }])
+
+            if (error) {
+                alert('Erro ao cadastrar: ' + error.message)
+            } else {
+                alert('Equipamento cadastrado com sucesso!')
+                document.getElementById('equipamento-form').reset()
+                mostrarEquipamentos()
+            }
+        }
+
+        // Atualizar status
+        window.atualizarStatus = async function(id, novoStatus) {
+            const { error } = await supabase
+                .from('equipamentos')
+                .update({ status: novoStatus })
+                .eq('id', id)
+
+            if (error) {
+                alert('Erro ao atualizar status: ' + error.message)
+            } else {
+                mostrarEquipamentos()
+            }
+        }
+
+        // Excluir equipamento
+        window.excluirEquipamento = async function(id) {
+            if (confirm('Tem certeza que deseja excluir este equipamento?')) {
+                const { error } = await supabase
+                    .from('equipamentos')
+                    .delete()
+                    .eq('id', id)
+
+                if (error) {
+                    alert('Erro ao excluir: ' + error.message)
+                } else {
+                    mostrarEquipamentos()
+                }
+            }
+        }
+
+        // Filtrar equipamentos
+        window.filtrarEquipamentos = function() {
+            mostrarEquipamentos()
+        }
+
+        // Logout
+        window.handleLogout = async function() {
+            await supabase.auth.signOut()
+            window.location.href = 'login.html'
+        }
+
+        // Carregar equipamentos ao iniciar
+        mostrarEquipamentos()
+    </script>
+</body>
+</html>

@@ -1,17 +1,21 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Notebooks por Data - Brasil</title>
-    
-    <!-- Material Icons -->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    
-    <!-- CSS Principal -->
+    <title>Controle de Estoque</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div class="login-container">
+        <div class="login-box">
+            <h1>📱💻 Controle de Estoque</h1>
+            <p>Gerencie notebooks, celulares e tablets</p>
+            <a href="login.html" class="btn-primary" style="display: block; text-align: center; text-decoration: none;">Acessar Sistema</a>
+        </div>
+    </div>
+</body>
+</html>
     <!-- Imagem de fundo -->
     <div class="background-image"></div>
     
@@ -351,4 +355,76 @@
     </div>
     
     <script src="app.js"></script>
+
+    <script type="module">
+  import { supabase } from './supabaseClient.js'
+  
+  // Testar conexão
+  async function testConnection() {
+    const { data, error } = await supabase.from('equipamentos').select('count')
+    if (error) {
+      console.error('Erro:', error)
+    } else {
+      console.log('Conectado ao Supabase!')
+    }
+  }
+  // Login
+async function login(email, password) {
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: email,
+    password: password,
+  })
+  if (error) throw error
+  return data.user
+}
+
+// Cadastro
+async function cadastrar(email, password) {
+  const { data, error } = await supabase.auth.signUp({
+    email: email,
+    password: password,
+  })
+  if (error) throw error
+  return data.user
+}
+
+// Listar equipamentos
+async function listarEquipamentos() {
+  const { data, error } = await supabase
+    .from('equipamentos')
+    .select('*')
+    .order('data_cadastro', { ascending: false })
+  
+  if (error) throw error
+  return data
+}
+
+        // Adicionar equipamento
+        async function adicionarEquipamento(equipamento) {
+        const user = supabase.auth.user()
+        const { data, error } = await supabase
+            .from('equipamentos')
+            .insert([{
+            ...equipamento,
+            usuario_id: user.id,
+            status: 'disponivel'
+            }])
+        
+        if (error) throw error
+        return data
+        }
+
+        // Atualizar status
+        async function atualizarStatus(id, novoStatus) {
+        const { data, error } = await supabase
+            .from('equipamentos')
+            .update({ status: novoStatus })
+            .eq('id', id)
+        
+        if (error) throw error
+        return data
+        }
+        
+  testConnection()
+</script>
 </body>

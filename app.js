@@ -463,3 +463,15 @@ document.addEventListener('keydown', function(e) {
 });
 
 // Fechar modal clic
+
+// Página administrativa para convidar usuários
+async function convidarUsuario(email) {
+  const { data, error } = await supabase.auth.admin.inviteUserByEmail(email)
+  
+  if (error) throw error
+  return data
+}
+
+// Criar usuário padrão
+const emailPadrao = "davidavilucas38@gmail.com"
+const senhaPadrao = "Ferrariluxodevderdade@"
